@@ -450,7 +450,11 @@ function QuizPageInner() {
             {/* ── Section 2: AI Report ── */}
             {report && (() => {
               let sections;
-              try { sections = JSON.parse(report); } catch { sections = null; }
+              let cleaned = report.trim();
+              if (cleaned.startsWith("```")) {
+                cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, "");
+              }
+              try { sections = JSON.parse(cleaned); } catch { sections = null; }
 
               if (!sections) {
                 // Fallback for non-JSON (old format)

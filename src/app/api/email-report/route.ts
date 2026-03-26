@@ -50,7 +50,11 @@ export async function POST(req: NextRequest) {
   // Parse AI report JSON into email-safe HTML (tables only)
   let reportHtml = "";
   try {
-    const sections = JSON.parse(report);
+    let cleaned = report.trim();
+    if (cleaned.startsWith("```")) {
+      cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, "");
+    }
+    const sections = JSON.parse(cleaned);
     for (const section of sections) {
       if (section.type === "stat-row") {
         reportHtml += `<table width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0"><tr>`;

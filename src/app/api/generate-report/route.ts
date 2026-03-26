@@ -3,7 +3,7 @@ import type { ScoreResult } from "@/lib/scoring";
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "";
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-const MODEL = "deepseek/deepseek-chat";
+const MODEL = "anthropic/claude-sonnet-4";
 
 function buildPrompt(
   answers: Record<string, string>,
@@ -136,8 +136,14 @@ export async function POST(req: NextRequest) {
     });
 
     const data = await res.json();
-    const report =
+    let report =
       data.choices?.[0]?.message?.content || "<p>Report generation failed.</p>";
+
+    // Strip markdown code fences that models sometimes wrap around JSON
+    report = report.trim();
+    if (report.startsWith("```")) {
+      report = report.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, "");
+    }
 
     // Update Airtable with completed status + scores
     if (sessionId) {
