@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY || "");
+function getResend() {
+  const { Resend } = require("resend");
+  return new Resend(process.env.RESEND_API_KEY || "");
+}
 
 export async function POST(req: NextRequest) {
   const { email, scores, report, sessionId } = await req.json();
@@ -70,6 +72,7 @@ export async function POST(req: NextRequest) {
   `;
 
   try {
+    const resend = getResend();
     await resend.emails.send({
       from: "Northern Lights Consulting <audit@resend.dev>",
       to: email,
