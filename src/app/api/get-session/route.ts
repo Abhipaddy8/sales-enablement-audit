@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY || "";
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID || "";
-const AIRTABLE_TABLE = "quiz_sessions";
+const AIRTABLE_TABLE = "Quiz Sessions";
 
 export async function GET(req: NextRequest) {
   const sessionId = req.nextUrl.searchParams.get("session");
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const res = await fetch(
-      `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}?filterByFormula={session_id}="${sessionId}"&maxRecords=1`,
+      `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE)}?filterByFormula={Session ID}="${sessionId}"&maxRecords=1`,
       {
         headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` },
       }
@@ -31,11 +31,11 @@ export async function GET(req: NextRequest) {
     const fields = data.records[0].fields;
 
     return NextResponse.json({
-      email: fields.email,
-      status: fields.status,
-      answers: fields.answers_json ? JSON.parse(fields.answers_json) : null,
-      lastQuestion: fields.last_question || 0,
-      scores: fields.score_json ? JSON.parse(fields.score_json) : null,
+      email: fields["Email"],
+      status: fields["Status"],
+      answers: fields["Answers JSON"] ? JSON.parse(fields["Answers JSON"]) : null,
+      lastQuestion: fields["Current Question"] || 0,
+      scores: fields["Scores JSON"] ? JSON.parse(fields["Scores JSON"]) : null,
     });
   } catch (e) {
     console.error("Get session failed:", e);

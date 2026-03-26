@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY || "";
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID || "";
-const AIRTABLE_TABLE = "quiz_sessions";
+const AIRTABLE_TABLE = "Quiz Sessions";
 
 export async function POST(req: NextRequest) {
   const { sessionId, lastQuestion, questionName, answers, completed, scores } =
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   try {
     // Find the record by session_id
     const searchRes = await fetch(
-      `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}?filterByFormula={session_id}="${sessionId}"&maxRecords=1`,
+      `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE)}?filterByFormula={Session ID}="${sessionId}"&maxRecords=1`,
       {
         headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` },
       }
@@ -35,33 +35,33 @@ export async function POST(req: NextRequest) {
 
     const recordId = searchData.records[0].id;
     const existingAnswers = JSON.parse(
-      searchData.records[0].fields.answers_json || "{}"
+      searchData.records[0].fields["Answers JSON"] || "{}"
     );
 
     // Build update fields
     const fields: Record<string, unknown> = {
-      last_active: new Date().toISOString(),
+      "Last Active": new Date().toISOString(),
     };
 
     if (lastQuestion !== undefined) {
-      fields.last_question = lastQuestion;
+      fields["Current Question"] = lastQuestion;
     }
 
     if (answers) {
-      fields.answers_json = JSON.stringify({ ...existingAnswers, ...answers });
+      fields["Answers JSON"] = JSON.stringify({ ...existingAnswers, ...answers });
     }
 
     if (completed) {
-      fields.status = "completed";
+      fields["Status"] = "completed";
     }
 
     if (scores) {
-      fields.score_json = JSON.stringify(scores);
+      fields["Scores JSON"] = JSON.stringify(scores);
     }
 
     // Update the record
     await fetch(
-      `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}/${recordId}`,
+      `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE)}/${recordId}`,
       {
         method: "PATCH",
         headers: {

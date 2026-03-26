@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
       const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID || "";
       if (AIRTABLE_API_KEY && AIRTABLE_BASE_ID) {
         const searchRes = await fetch(
-          `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/quiz_sessions?filterByFormula={session_id}="${sessionId}"&maxRecords=1`,
+          `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent("Quiz Sessions")}?filterByFormula={Session ID}="${sessionId}"&maxRecords=1`,
           { headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` } }
         );
         const searchData = await searchRes.json();
@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
                 Authorization: `Bearer ${AIRTABLE_API_KEY}`,
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({ fields: { report_sent: true } }),
+              body: JSON.stringify({ fields: { "Report Sent": true } }),
             }
           );
         }

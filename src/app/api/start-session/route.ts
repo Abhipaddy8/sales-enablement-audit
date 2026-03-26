@@ -3,7 +3,7 @@ import { v4 as uuid } from "uuid";
 
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY || "";
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID || "";
-const AIRTABLE_TABLE = "quiz_sessions";
+const AIRTABLE_TABLE = "Quiz Sessions";
 
 export async function POST(req: NextRequest) {
   const { email } = await req.json();
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   if (AIRTABLE_API_KEY && AIRTABLE_BASE_ID) {
     try {
       await fetch(
-        `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}`,
+        `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE)}`,
         {
           method: "POST",
           headers: {
@@ -29,18 +29,15 @@ export async function POST(req: NextRequest) {
             records: [
               {
                 fields: {
-                  session_id: sessionId,
-                  email,
-                  status: "started",
-                  started_at: new Date().toISOString(),
-                  last_active: new Date().toISOString(),
-                  last_question: 0,
-                  answers_json: "{}",
-                  score_json: "",
-                  reminder_1_sent: false,
-                  reminder_2_sent: false,
-                  reminder_3_sent: false,
-                  report_sent: false,
+                  "Session ID": sessionId,
+                  "Email": email,
+                  "Status": "started",
+                  "Started At": new Date().toISOString(),
+                  "Last Active": new Date().toISOString(),
+                  "Current Question": 0,
+                  "Answers JSON": "{}",
+                  "Scores JSON": "",
+                  "Report Sent": false,
                 },
               },
             ],
