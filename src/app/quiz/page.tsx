@@ -336,53 +336,114 @@ function QuizPageInner() {
               </p>
 
               {/* Dimension Bars */}
-              <div className="grid gap-5 mt-10 text-left">
-                {scores.dimensions.map((dim) => {
-                  const pct = (dim.score / dim.maxScore) * 100;
-                  const barColor =
-                    dim.score >= 3.5 ? "#2e844a"
-                    : dim.score >= 2.5 ? "#0176d3"
-                    : dim.score >= 1.5 ? "#d97706"
-                    : "#dc2626";
-                  return (
-                    <div key={dim.dimension} className="bg-[#f3f3f3] rounded-xl p-5">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-semibold text-[#032d60]">
-                          {dim.dimension}
-                        </span>
-                        <span
-                          className={`text-sm font-medium px-3 py-1 rounded-full ${
-                            dim.score >= 3.5
-                              ? "bg-green-100 text-green-700"
-                              : dim.score >= 2.5
-                              ? "bg-blue-100 text-blue-700"
-                              : dim.score >= 1.5
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-red-100 text-red-700"
-                          }`}
-                        >
-                          {dim.label}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1 h-4 bg-gray-200 rounded-full overflow-hidden">
-                          <div
-                            className="h-full rounded-full"
-                            style={{
-                              width: `${pct}%`,
-                              backgroundColor: barColor,
-                              animation: "barGrow 1s ease-out",
-                              transition: "width 0.7s ease-out",
-                            }}
-                          />
+              {(() => {
+                const dimensionDescriptions: Record<string, string> = {
+                  "Enablement Strategy": "How well your enablement efforts are planned, resourced, and aligned with revenue goals.",
+                  "Coaching & Development": "Whether managers actively coach reps with structured feedback — or just review deals when they stall.",
+                  "Knowledge & Content Delivery": "How easily reps can find the right content at the right time, without digging through folders.",
+                  "Onboarding & Everboarding": "How fast new hires become productive — and whether tenured reps keep leveling up.",
+                  "AI Readiness for Enablement": "How prepared your team is to use AI for coaching, content, and workflow automation.",
+                };
+                return (
+                  <div className="grid gap-5 mt-10 text-left">
+                    {scores.dimensions.map((dim) => {
+                      const pct = (dim.score / dim.maxScore) * 100;
+                      const barColor =
+                        dim.score >= 3.5 ? "#2e844a"
+                        : dim.score >= 2.5 ? "#0176d3"
+                        : dim.score >= 1.5 ? "#d97706"
+                        : "#dc2626";
+                      return (
+                        <div key={dim.dimension} className="bg-[#f3f3f3] rounded-xl p-5">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-semibold text-[#032d60]">
+                              {dim.dimension}
+                            </span>
+                            <span
+                              className={`text-sm font-medium px-3 py-1 rounded-full ${
+                                dim.score >= 3.5
+                                  ? "bg-green-100 text-green-700"
+                                  : dim.score >= 2.5
+                                  ? "bg-blue-100 text-blue-700"
+                                  : dim.score >= 1.5
+                                  ? "bg-yellow-100 text-yellow-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {dim.label}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 mb-3">{dimensionDescriptions[dim.dimension]}</p>
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1 h-4 bg-gray-200 rounded-full overflow-hidden">
+                              <div
+                                className="h-full rounded-full"
+                                style={{
+                                  width: `${pct}%`,
+                                  backgroundColor: barColor,
+                                  animation: "barGrow 1s ease-out",
+                                  transition: "width 0.7s ease-out",
+                                }}
+                              />
+                            </div>
+                            <span className="text-sm font-bold text-[#032d60] w-12 text-right">
+                              {dim.score.toFixed(1)}/{dim.maxScore}
+                            </span>
+                          </div>
                         </div>
-                        <span className="text-sm font-bold text-[#032d60] w-12 text-right">
-                          {dim.score.toFixed(1)}/{dim.maxScore}
-                        </span>
-                      </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* ── Hero CTA: Get Full Report ── */}
+            <div className="max-w-4xl mx-auto px-4 mb-16">
+              <div className="bg-gradient-to-r from-[#032d60] to-[#0a4a8a] rounded-2xl p-8 sm:p-10 text-center">
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-white mb-3">
+                  Get Your Personalized Full Report
+                </h3>
+                <p className="text-blue-200 mb-6 max-w-lg mx-auto">
+                  We&apos;ll email you a detailed breakdown with your gaps, quick wins, AI opportunities, and a custom action plan.
+                </p>
+                {emailSent ? (
+                  <div className="bg-[#2e844a]/20 border border-[#2e844a]/30 rounded-xl px-6 py-4 inline-flex items-center gap-3">
+                    <svg className="w-6 h-6 text-[#2e844a]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div className="text-left">
+                      <p className="text-white font-semibold text-sm">Report sent!</p>
+                      <p className="text-blue-200 text-xs">Check your inbox at {email}</p>
                     </div>
-                  );
-                })}
+                  </div>
+                ) : (
+                  <button
+                    onClick={async () => {
+                      setEmailSending(true);
+                      try {
+                        await fetch("/api/email-report", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ email, scores, report, sessionId }),
+                        });
+                        setEmailSent(true);
+                      } catch {
+                        setEmailSent(true);
+                      } finally {
+                        setEmailSending(false);
+                      }
+                    }}
+                    disabled={emailSending}
+                    className="inline-flex items-center gap-3 px-8 py-4 bg-[#ff6b00] text-white text-base font-bold rounded-xl hover:bg-[#e55f00] transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#ff6b00]/30 disabled:opacity-50 disabled:hover:translate-y-0"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                    </svg>
+                    {emailSending ? "Sending..." : "Email Me My Full Report"}
+                  </button>
+                )}
+                <p className="text-blue-300/60 text-xs mt-3">Free — delivered to {email} in seconds</p>
               </div>
             </div>
 
