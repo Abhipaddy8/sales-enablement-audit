@@ -1,26 +1,130 @@
 @import "tailwindcss";
 
 :root {
+  --sf-blue: #0176d3;
+  --sf-navy: #032d60;
+  --sf-orange: #ff6b00;
+  --sf-light: #f3f3f3;
+  --sf-green: #2e844a;
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #181818;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-sf-blue: var(--sf-blue);
+  --color-sf-navy: var(--sf-navy);
+  --color-sf-orange: var(--sf-orange);
+  --color-sf-light: var(--sf-light);
+  --color-sf-green: var(--sf-green);
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+/* ===== SurveyJS Theme Overrides — Salesforce Blue ===== */
+
+/* 1. Hide validation errors */
+.sd-question__erbox { display: none !important; }
+.sd-question--error .sd-question__header { border: none !important; background: none !important; }
+
+/* 2. Hide navigation buttons (backup — JS primary) */
+.sd-action-bar { display: none !important; }
+
+/* 3. Remove SurveyJS chrome/borders/backgrounds */
+.sd-root-modern { --sd-base-padding: 0px; background: transparent !important; }
+.sd-body { background: transparent !important; padding: 0 !important; }
+.sd-page { padding: 0 !important; margin: 0 !important; }
+.sd-body__page { padding: 0 !important; }
+.sd-question { padding: 0 !important; }
+.sd-element--with-frame { box-shadow: none !important; border: none !important; padding: 0 !important; }
+.sd-body--static { padding: 0 !important; }
+
+/* 4. Question title — larger, navy, no asterisk */
+.sd-question__title {
+  font-size: 1.6rem !important;
+  font-weight: 700 !important;
+  color: #032d60 !important;
+  line-height: 1.35 !important;
+  padding-bottom: 8px !important;
+}
+.sd-question__required-text { display: none !important; }
+
+/* 5. Progress bar — sleek 4px with gradient */
+.sd-progress {
+  height: 4px !important;
+  background: #e5e7eb !important;
+  border-radius: 2px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.sd-progress__bar {
+  background: linear-gradient(90deg, #0176d3, #015bb5) !important;
+  border-radius: 2px !important;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.sd-progress__text { display: none !important; }
+
+/* 6. Radio button decorator — Salesforce blue when selected */
+.sd-radio__decorator {
+  border-color: #d1d5db !important;
+}
+.sd-item--checked .sd-radio__decorator {
+  background-color: #0176d3 !important;
+  border-color: #0176d3 !important;
+}
+.sd-radio__decorator::after {
+  background-color: white !important;
+}
+
+/* 7. Answer choice cards — clean, bordered, good hover */
+.sd-selectbase { gap: 10px !important; }
+.sd-item {
+  border: 1.5px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  padding: 6px 12px !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+}
+.sd-item:hover {
+  border-color: #0176d3 !important;
+  background: #f8fbff !important;
+  transform: translateX(4px);
+}
+.sd-item--checked {
+  border-color: #0176d3 !important;
+  border-left: 4px solid #0176d3 !important;
+  background: #eef5ff !important;
+}
+.sd-item__control-label {
+  font-size: 1.05rem !important;
+  padding: 14px 16px !important;
+  color: #1a1a1a !important;
+}
+
+/* 8. Smooth question transition */
+.sd-page {
+  animation: fadeIn 0.3s ease-in-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 9. Marquee animation for results page logo strip */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  animation: marquee 25s linear infinite;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
 }
