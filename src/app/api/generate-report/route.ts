@@ -147,16 +147,39 @@ export async function POST(req: NextRequest) {
 
     // Update Airtable with completed status + scores
     if (sessionId) {
-      fetch(`${req.nextUrl.origin}/api/update-session`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId,
-          completed: true,
-          scores,
-          answers,
-        }),
-      }).catch(() => {});
+      const AT_KEY = process.env.AIRTABLE_API_KEY || "";
+      const AT_BASE = process.env.AIRTABLE_BASE_ID || "";
+      if (AT_KEY && AT_BASE) {
+        try {
+          const searchRes = await fetch(
+            `https://api.airtable.com/v0/${AT_BASE}/${encodeURIComponent("Quiz Sessions")}?filterByFormula={Session ID}="${sessionId}"&maxRecords=1`,
+            { headers: { Authorization: `Bearer ${AT_KEY}` } }
+          );
+          const searchData = await searchRes.json();
+          if (searchData.records?.length > 0) {
+            await fetch(
+              `https://api.airtable.com/v0/${AT_BASE}/${encodeURIComponent("Quiz Sessions")}/${searchData.records[0].id}`,
+              {
+                method: "PATCH",
+                headers: {
+                  Authorization: `Bearer ${AT_KEY}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  fields: {
+                    "Status": "completed",
+                    "Scores JSON": JSON.stringify(scores),
+                    "Answers JSON": JSON.stringify(answers),
+                    "Last Active": new Date().toISOString(),
+                  },
+                }),
+              }
+            );
+          }
+        } catch (e) {
+          console.error("Airtable update failed:", e);
+        }
+      }
     }
 
     return NextResponse.json({ report });
