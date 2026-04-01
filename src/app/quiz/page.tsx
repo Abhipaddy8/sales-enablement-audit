@@ -398,54 +398,8 @@ function QuizPageInner() {
               })()}
             </div>
 
-            {/* ── Hero CTA: Get Full Report ── */}
-            <div className="max-w-4xl mx-auto px-4 mb-16">
-              <div className="bg-gradient-to-r from-[#032d60] to-[#0a4a8a] rounded-2xl p-8 sm:p-10 text-center">
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-white mb-3">
-                  Get Your Personalized Full Report
-                </h3>
-                <p className="text-blue-200 mb-6 max-w-lg mx-auto">
-                  We&apos;ll email you a detailed breakdown with your gaps, quick wins, AI opportunities, and a custom action plan.
-                </p>
-                {emailSent ? (
-                  <div className="bg-[#2e844a]/20 border border-[#2e844a]/30 rounded-xl px-6 py-4 inline-flex items-center gap-3">
-                    <svg className="w-6 h-6 text-[#2e844a]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <div className="text-left">
-                      <p className="text-white font-semibold text-sm">Report sent!</p>
-                      <p className="text-blue-200 text-xs">Check your inbox at {email}</p>
-                    </div>
-                  </div>
-                ) : (
-                  <button
-                    onClick={async () => {
-                      setEmailSending(true);
-                      try {
-                        await fetch("/api/email-report", {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ email, scores, report, sessionId }),
-                        });
-                        setEmailSent(true);
-                      } catch {
-                        setEmailSent(true);
-                      } finally {
-                        setEmailSending(false);
-                      }
-                    }}
-                    disabled={emailSending}
-                    className="inline-flex items-center gap-3 px-8 py-4 bg-[#ff6b00] text-white text-base font-bold rounded-xl hover:bg-[#e55f00] transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#ff6b00]/30 disabled:opacity-50 disabled:hover:translate-y-0"
-                  >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-                    </svg>
-                    {emailSending ? "Sending..." : "Email Me My Full Report"}
-                  </button>
-                )}
-                <p className="text-blue-300/60 text-xs mt-3">Free — delivered to {email} in seconds</p>
-              </div>
-            </div>
+            {/* ── Hero CTA: Email Report (disabled until Resend domain verified) ── */}
+            {/* TODO: Re-enable when Marc's Resend domain is set up */}
 
             {/* ── Section 2: AI Report ── */}
             {report && (() => {
@@ -702,46 +656,8 @@ function QuizPageInner() {
 
                 <p className="text-blue-300/60 text-xs mt-3 mb-8">Free · 30 minutes · No obligation</p>
 
-                {/* Email Report — Big CTA */}
-                <div className="border-t border-white/10 pt-8 mt-2">
-                  <p className="text-blue-200 text-sm mb-4">Want to review this later?</p>
-                  {emailSent ? (
-                    <div className="bg-[#2e844a]/20 border border-[#2e844a]/30 rounded-xl px-6 py-4 inline-flex items-center gap-3">
-                      <svg className="w-6 h-6 text-[#2e844a]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <div className="text-left">
-                        <p className="text-white font-semibold text-sm">Report sent!</p>
-                        <p className="text-blue-200 text-xs">Check your inbox at {email}</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={async () => {
-                        setEmailSending(true);
-                        try {
-                          await fetch("/api/email-report", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ email, scores, report, sessionId }),
-                          });
-                          setEmailSent(true);
-                        } catch {
-                          setEmailSent(true);
-                        } finally {
-                          setEmailSending(false);
-                        }
-                      }}
-                      disabled={emailSending}
-                      className="inline-flex items-center gap-3 px-8 py-4 bg-white text-[#032d60] font-bold rounded-xl hover:bg-gray-100 transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:hover:translate-y-0"
-                    >
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-                      </svg>
-                      {emailSending ? "Sending..." : "Email Me This Report"}
-                    </button>
-                  )}
-                </div>
+                {/* Email Report — Big CTA (disabled until Resend domain verified) */}
+                {/* TODO: Re-enable when Marc's Resend domain is set up */}
               </div>
             </div>
           </div>
