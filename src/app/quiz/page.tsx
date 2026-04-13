@@ -3,7 +3,6 @@
 import { Suspense, useState, useCallback, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
-import EmailCapture from "@/components/EmailCapture";
 import { calculateScores, type ScoreResult } from "@/lib/scoring";
 
 // Dynamic import to avoid SSR issues with SurveyJS
@@ -16,7 +15,7 @@ const QuizSurvey = dynamic(() => import("@/components/QuizSurvey"), {
   ),
 });
 
-type Phase = "email" | "quiz" | "generating" | "results";
+type Phase = "quiz" | "generating" | "results";
 
 export default function QuizPage() {
   return (
@@ -96,10 +95,9 @@ function QuizPageInner() {
   const searchParams = useSearchParams();
   const sessionParam = searchParams.get("session");
 
-  const [phase, setPhase] = useState<Phase>(sessionParam ? "quiz" : "email");
-  const [email, setEmail] = useState("");
+  const [phase, setPhase] = useState<Phase>("quiz");
+  const [email] = useState("");
   const [sessionId, setSessionId] = useState(sessionParam || "");
-  const [loading, setLoading] = useState(false);
   const [scores, setScores] = useState<ScoreResult | null>(null);
   const [report, setReport] = useState("");
   const [initialAnswers, setInitialAnswers] = useState<
@@ -109,8 +107,13 @@ function QuizPageInner() {
     number | undefined
   >();
   const [timeLeft, setTimeLeft] = useState({ hours: 47, minutes: 59, seconds: 59 });
-  const [emailSent, setEmailSent] = useState(false);
-  const [emailSending, setEmailSending] = useState(false);
+
+  // Generate session ID on mount (no email capture upfront)
+  useEffect(() => {
+    if (!sessionParam) {
+      setSessionId(crypto.randomUUID());
+    }
+  }, [sessionParam]);
 
   // Resume flow: load session from Airtable
   useEffect(() => {
@@ -118,17 +121,13 @@ function QuizPageInner() {
       fetch(`/api/get-session?session=${sessionParam}`)
         .then((r) => r.json())
         .then((data) => {
-          if (data.email) {
-            setEmail(data.email);
-            if (data.answers) {
-              setInitialAnswers(data.answers);
-              setStartFromQuestion(data.lastQuestion || 0);
-            }
+          if (data.answers) {
+            setInitialAnswers(data.answers);
+            setStartFromQuestion(data.lastQuestion || 0);
           }
         })
         .catch(() => {
-          // Session not found, start fresh
-          setPhase("email");
+          // Session not found, ignore
         });
     }
   }, [sessionParam]);
@@ -152,33 +151,6 @@ function QuizPageInner() {
     }, 1000);
     return () => clearInterval(interval);
   }, [phase]);
-
-  const handleEmailSubmit = useCallback(async (submittedEmail: string) => {
-    setLoading(true);
-    setEmail(submittedEmail);
-
-    try {
-      const res = await fetch("/api/start-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: submittedEmail }),
-      });
-      const data = await res.json();
-      setSessionId(data.sessionId);
-
-      // Save to localStorage for same-device resume
-      localStorage.setItem("sea_session", data.sessionId);
-      localStorage.setItem("sea_email", submittedEmail);
-
-      setPhase("quiz");
-    } catch {
-      // If API fails, still let them take the quiz (degrade gracefully)
-      setSessionId(crypto.randomUUID());
-      setPhase("quiz");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
   const handleQuestionChanged = useCallback(
     async (questionName: string, questionIndex: number) => {
@@ -251,10 +223,6 @@ function QuizPageInner() {
 
       {/* Content */}
       <main className={`flex-1 flex items-center justify-center ${phase === "results" ? "px-0 py-0" : "px-4 py-12 sm:py-20"}`}>
-        {phase === "email" && (
-          <EmailCapture onSubmit={handleEmailSubmit} loading={loading} />
-        )}
-
         {phase === "quiz" && (
           <QuizSurvey
             onComplete={handleQuizComplete}
